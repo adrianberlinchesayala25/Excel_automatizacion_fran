@@ -51,6 +51,11 @@ export const POST: APIRoute = async ({ request }) => {
 		const address = text(data.address, 'dirección', 180);
 		const brand = text(data.brand, 'marca', 60);
 		const model = text(data.model, 'modelo', 80);
+		const modelYearValue = text(data.modelYear, 'año del vehículo', 4);
+		const modelYear = Number(modelYearValue);
+		if (!/^\d{4}$/.test(modelYearValue) || modelYear < 1886 || modelYear > new Date().getFullYear() + 1) {
+			throw new InvalidInvoiceError('Revisa el año del vehículo.');
+		}
 		const registration = text(data.registration, 'matrícula', 16);
 		const mileage = text(data.mileage, 'kilometraje', 24).replace(/\s*km\s*$/i, '').trim();
 		if (!/\d/.test(mileage) || !/^[\d., ]+$/.test(mileage)) throw new InvalidInvoiceError('Revisa el kilometraje.');
@@ -66,6 +71,7 @@ export const POST: APIRoute = async ({ request }) => {
 			address,
 			brand,
 			model,
+			modelYear,
 			registration,
 			mileage,
 			price,

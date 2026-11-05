@@ -24,13 +24,13 @@ test('invoice values replace template data and preserve each target cell style',
 	const styles = Object.fromEntries(targets.map((address) => [address, originalSheet.cell(address).style(styleKeys)]));
 	const generated = await buildInvoiceWorkbook(template, {
 		invoiceNumber: 'FTEST', date: '05/11/2026', customerName: 'Cliente de prueba', taxId: 'B12345678',
-		address: 'Calle de prueba 1', brand: 'RENAULT', model: 'CAPTUR', registration: '6732-JKM', mileage: '123.456', price: 2500.5,
+		address: 'Calle de prueba 1', brand: 'RENAULT', model: 'CAPTUR', modelYear: 2020, registration: '6732-JKM', mileage: '123.456', price: 2500.5,
 	});
 	const result = await XlsxPopulate.fromDataAsync(generated);
 	const sheet = result.sheet(0);
 	const expected = {
 		J8: 'FTEST', J11: '05/11/2026', C11: 'Cliente de prueba', C12: 'B12345678',
-		C13: 'Calle de prueba 1', C17: 'RENAULT CAPTUR MATRICULA 6732-JKM', C21: 'KILOMETRAJE 123.456KM',
+		C13: 'Calle de prueba 1', C17: 'RENAULT CAPTUR AÑO 2020 MATRICULA 6732-JKM', C21: 'KILOMETRAJE 123.456KM',
 		J17: 2500.5, J34: 2500.5, J36: 2500.5,
 	};
 	for (const [address, value] of Object.entries(expected)) {

@@ -9,6 +9,7 @@ export interface InvoiceWorkbookData {
 	address: string;
 	brand: string;
 	model: string;
+	modelYear: number;
 	registration: string;
 	mileage: string;
 	price: number;
@@ -22,7 +23,7 @@ export async function buildInvoiceWorkbook(template: Buffer, invoice: InvoiceWor
 	sheet.cell('C11').value(invoice.customerName);
 	sheet.cell('C12').value(invoice.taxId);
 	sheet.cell('C13').value(invoice.address);
-	sheet.cell('C17').value(`${invoice.brand} ${invoice.model} MATRICULA ${invoice.registration}`);
+	sheet.cell('C17').value(`${invoice.brand} ${invoice.model} AÑO ${invoice.modelYear} MATRICULA ${invoice.registration}`);
 	sheet.cell('C21').value(`KILOMETRAJE ${invoice.mileage}KM`);
 	sheet.cell('J17').value(invoice.price);
 	sheet.cell('J34').value(invoice.price);
