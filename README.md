@@ -1,46 +1,19 @@
-# Astro Starter Kit: Basics
+# Facturación de vehículos
 
-```sh
-npm create astro@latest -- --template basics
-```
+Aplicación Astro con SSR en Vercel para generar y descargar facturas desde una plantilla privada.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Configuración
 
-## 🚀 Project Structure
+1. Copia `.env.example` a `.env` y rellena `APP_PASSWORD_HASH` y `APP_SESSION_SECRET`.
+2. Ejecuta `npm install` y `npm run dev`.
+3. En Vercel, configura las mismas variables antes de desplegar.
 
-Inside of your Astro project, you'll see the following folders and files:
+Genera un hash para otra contraseña con `node --input-type=module -e "import { pbkdf2Sync, randomBytes } from 'node:crypto'; const salt = randomBytes(16); console.log(Buffer.concat([salt, pbkdf2Sync(process.argv[1], salt, 310000, 32, 'sha256')]).toString('base64'))" "tu contraseña"`. Genera `APP_SESSION_SECRET` con `node --input-type=module -e "import { randomBytes } from 'node:crypto'; console.log(randomBytes(32).toString('base64'))"`.
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+El login bloquea una dirección tras 3 contraseñas incorrectas durante 15 minutos. En Vercel el contador está en memoria por instancia; para que el límite sea compartido entre todas las instancias hace falta un almacén persistente.
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+La plantilla está en `src/data/plantilla.xlsx`, fuera de los archivos públicos, porque parte de una factura real. El navegador recuerda los campos del formulario en `localStorage`; «Borrar datos guardados» los elimina de ese dispositivo.
 
-## 🧞 Commands
+## Comprobación
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+`npm run check:template` comprueba el mapeo de celdas, que los estilos de la plantilla se conservan y que las sesiones no se pueden falsificar.

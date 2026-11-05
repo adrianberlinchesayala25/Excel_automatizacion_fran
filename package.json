@@ -9,9 +9,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "check:template": "node --experimental-strip-types --test scripts/check-template.test.mjs",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.4.5"
+    "@astrojs/vercel": "^11.0.18",
+    "@tailwindcss/vite": "^4.3.4",
+    "astro": "^7.4.5",
+    "jszip": "^3.10.2",
+    "tailwindcss": "^4.3.4",
+    "xlsx-populate": "^1.21.0"
   }
 }

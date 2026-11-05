@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Acceso | Fran">
+	<main class="app-shell min-h-screen login-shell">
+		<header class="topbar">
+			<a class="wordmark" href="/" aria-label="Fran, acceso">
+				<span class="wordmark-mark">F</span>
+				<span>FRAN<span class="wordmark-divider">/</span>FACTURACIÓN</span>
+			</a>
+		</header>
+		<section class="login-view" aria-labelledby="login-title">
+			<div class="login-content">
+				<p class="eyebrow"><span class="status-dot"></span> ACCESO PRIVADO</p>
+				<h1 id="login-title">Bienvenido, <span>Fran.</span></h1>
+				<p>Introduce tu contraseña para continuar.</p>
+				<form class="login-form" data-login-form>
+					<label class="field">
+						<span>Contraseña</span>
+						<input name="password" type="password" required autocomplete="current-password" autofocus />
+					</label>
+					<button class="primary-button" type="submit">
+						<span data-login-label>Entrar</span><span class="spinner" data-login-spinner hidden aria-hidden="true"></span>
+					</button>
+					<p class="notice" data-login-error role="alert" hidden></p>
+				</form>
+			</div>
+		</section>
+		<footer class="page-footer"><span>FACTURACIÓN · VEHÍCULOS</span><span>ACCESO PROTEGIDO</span></footer>
+	</main>
+</Layout>
+
+<script>
+	const form = document.querySelector<HTMLFormElement>('[data-login-form]');
+	form?.addEventListener('submit', async (event) => {
+		event.preventDefault();
+		const button = form.querySelector<HTMLButtonElement>('button');
+		const label = form.querySelector<HTMLElement>('[data-login-label]');
+		const spinner = form.querySelector<HTMLElement>('[data-login-spinner]');
+		const error = form.querySelector<HTMLElement>('[data-login-error]');
+		if (button) button.disabled = true;
+		if (label) label.textContent = 'Comprobando';
+		if (spinner) spinner.hidden = false;
+		if (error) error.hidden = true;
+		try {
+			const response = await fetch('/api/login', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ password: new FormData(form).get('password') }),
+			});
+			if (!response.ok) {
+				if (response.status === 429) throw new Error('Demasiados intentos. Espera 15 minutos.');
+				throw new Error(response.status === 503 ? 'Falta configurar el acceso.' : 'La contraseña no es correcta.');
+			}
+			window.location.assign('/');
+		} catch (reason) {
+			if (error) {
+				error.textContent = reason instanceof Error ? reason.message : 'No se pudo iniciar sesión.';
+				error.hidden = false;
+			}
+			if (button) button.disabled = false;
+			if (label) label.textContent = 'Entrar';
+			if (spinner) spinner.hidden = true;
+		}
+	});
+</script>

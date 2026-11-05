@@ -1,11 +1,212 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
+	<main class="app-shell min-h-screen">
+		<header class="topbar">
+			<a class="wordmark" href="/" aria-label="Inicio">
+				<span class="wordmark-mark">F</span>
+				<span>FRAN<span class="wordmark-divider">/</span>FACTURACIÓN</span>
+			</a>
+			<button class="quiet-button" type="button" data-logout>Salir</button>
+		</header>
+
+		<section class="welcome-view" data-view="welcome" aria-labelledby="welcome-title">
+			<div class="welcome-copy">
+				<p class="eyebrow"><span class="status-dot"></span> TALLER · ADMINISTRACIÓN</p>
+				<h1 id="welcome-title">Bienvenido,<br /><span>Fran.</span></h1>
+				<p class="welcome-subtitle">Todo listo para preparar la próxima factura.</p>
+				<button class="primary-button" type="button" data-enter>
+					<span>Entrar en facturas</span><span aria-hidden="true">↗</span>
+				</button>
+			</div>
+			<div class="welcome-aside" aria-hidden="true">
+				<span class="aside-index">01 / 02</span>
+				<div class="orbit-mark"><span>F</span></div>
+				<span class="aside-caption">GESTIÓN<br />DE VEHÍCULOS</span>
+			</div>
+		</section>
+
+		<section class="form-view" data-view="form" aria-labelledby="form-title" hidden>
+			<div class="form-heading">
+				<div>
+					<p class="eyebrow"><span class="status-dot"></span> NUEVA FACTURA</p>
+					<h1 id="form-title">Datos del <span>vehículo.</span></h1>
+				</div>
+				<button class="quiet-button back-button" type="button" data-back><span aria-hidden="true">←</span> Inicio</button>
+			</div>
+
+			<form class="invoice-form" data-invoice-form>
+				<div class="field-grid">
+					<label class="field"><span>Número de factura</span><input name="invoiceNumber" type="text" placeholder="F1063" maxlength="24" required autocomplete="off" /></label>
+					<label class="field"><span>Fecha</span><input name="invoiceDate" type="date" required /></label>
+					<label class="field"><span>Cliente / empresa</span><input name="customerName" type="text" maxlength="120" required autocomplete="organization" /></label>
+					<label class="field"><span>CIF / NIF</span><input name="taxId" type="text" maxlength="32" required autocomplete="off" /></label>
+					<label class="field field-wide"><span>Dirección completa</span><input name="address" type="text" maxlength="180" required autocomplete="street-address" /></label>
+					<label class="field"><span>Marca</span><input name="brand" type="text" maxlength="60" required autocomplete="off" /></label>
+					<label class="field"><span>Modelo</span><input name="model" type="text" maxlength="80" required autocomplete="off" /></label>
+					<label class="field"><span>Matrícula</span><input name="registration" type="text" maxlength="16" required autocomplete="off" /></label>
+					<label class="field">
+						<span>Kilometraje</span>
+						<div class="input-suffix"><input name="mileage" type="text" maxlength="24" required inputmode="decimal" placeholder="131.000" /><span>KM</span></div>
+					</label>
+					<label class="field">
+						<span>Precio</span>
+						<div class="input-suffix"><input name="price" type="number" min="0.01" max="100000000" step="0.01" required inputmode="decimal" placeholder="0,00" /><span>EUR</span></div>
+					</label>
+				</div>
+				<div class="form-actions">
+					<button class="text-button" type="button" data-clear>Borrar datos guardados</button>
+					<button class="primary-button send-button" type="submit"><span>Revisar factura</span><span aria-hidden="true">↗</span></button>
+				</div>
+				<p class="notice" data-notice role="status" aria-live="polite" hidden></p>
+			</form>
+		</section>
+
+		<footer class="page-footer"><span>FACTURACIÓN · VEHÍCULOS</span><span>PLANTILLA 01</span></footer>
+	</main>
+
+	<dialog class="review-dialog" data-review-dialog aria-labelledby="review-title">
+		<form method="dialog" class="dialog-dismiss"><button class="dialog-close" aria-label="Cerrar revisión">×</button></form>
+		<p class="eyebrow"><span class="status-dot"></span> ÚLTIMA REVISIÓN</p>
+		<h2 id="review-title">¿Está todo <span>correcto?</span></h2>
+		<dl class="review-list">
+			<div><dt>Factura</dt><dd data-review="invoiceNumber"></dd></div>
+			<div><dt>Fecha</dt><dd data-review="invoiceDate"></dd></div>
+			<div><dt>Cliente</dt><dd data-review="customerName"></dd></div>
+			<div><dt>CIF / NIF</dt><dd data-review="taxId"></dd></div>
+			<div><dt>Dirección</dt><dd data-review="address"></dd></div>
+			<div><dt>Marca</dt><dd data-review="brand"></dd></div>
+			<div><dt>Modelo</dt><dd data-review="model"></dd></div>
+			<div><dt>Matrícula</dt><dd data-review="registration"></dd></div>
+			<div><dt>Kilometraje</dt><dd data-review="mileage"></dd></div>
+			<div><dt>Importe</dt><dd data-review="price"></dd></div>
+		</dl>
+		<div class="dialog-actions">
+			<button class="quiet-button" type="button" data-cancel-review>Volver a editar</button>
+			<button class="primary-button" type="button" data-confirm-send><span data-confirm-label>Descargar Excel</span><span class="spinner" data-confirm-spinner hidden aria-hidden="true"></span></button>
+		</div>
+	</dialog>
 </Layout>
+
+<script>
+	const form = document.querySelector<HTMLFormElement>('[data-invoice-form]');
+	const welcomeView = document.querySelector<HTMLElement>('[data-view="welcome"]');
+	const formView = document.querySelector<HTMLElement>('[data-view="form"]');
+	const dialog = document.querySelector<HTMLDialogElement>('[data-review-dialog]');
+	const notice = document.querySelector<HTMLElement>('[data-notice]');
+	const storageKey = 'fran-invoice-form-v1';
+
+	function localDateValue() {
+		const now = new Date();
+		return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+	}
+
+	function showForm(show: boolean) {
+		if (!welcomeView || !formView) return;
+		welcomeView.hidden = show;
+		formView.hidden = !show;
+		if (show) document.querySelector<HTMLInputElement>('[name="invoiceNumber"]')?.focus();
+	}
+
+	function notify(message: string, kind: 'success' | 'error') {
+		if (!notice) return;
+		notice.textContent = message;
+		notice.dataset.kind = kind;
+		notice.hidden = false;
+	}
+
+	function saveForm() {
+		if (!form) return;
+		try {
+			localStorage.setItem(storageKey, JSON.stringify(Object.fromEntries(new FormData(form).entries())));
+		} catch {
+			notify('No se pudieron guardar los datos en este navegador.', 'error');
+		}
+	}
+
+	if (form) {
+		const dateInput = form.elements.namedItem('invoiceDate') as HTMLInputElement;
+		dateInput.value = localDateValue();
+		try {
+			const saved = JSON.parse(localStorage.getItem(storageKey) ?? '{}') as Record<string, unknown>;
+			for (const input of form.querySelectorAll<HTMLInputElement>('input')) {
+				if (input.name !== 'invoiceDate' && typeof saved[input.name] === 'string') input.value = saved[input.name] as string;
+			}
+		} catch {
+			try { localStorage.removeItem(storageKey); } catch { /* Storage may be disabled. */ }
+		}
+		form.addEventListener('input', saveForm);
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+			if (!form.reportValidity() || !dialog) return;
+			const values = Object.fromEntries(new FormData(form).entries());
+			for (const [key, value] of Object.entries(values)) {
+				const output = dialog.querySelector<HTMLElement>(`[data-review="${key}"]`);
+				if (!output) continue;
+				if (key === 'invoiceDate' && typeof value === 'string') {
+					const [year, month, day] = value.split('-');
+					output.textContent = `${day}/${month}/${year}`;
+				} else if (key === 'price') {
+					output.textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(Number(value));
+				} else {
+					output.textContent = String(value);
+				}
+			}
+			dialog.showModal();
+		});
+	}
+
+	document.querySelector('[data-enter]')?.addEventListener('click', () => showForm(true));
+	document.querySelector('[data-back]')?.addEventListener('click', () => showForm(false));
+	document.querySelector('[data-cancel-review]')?.addEventListener('click', () => dialog?.close());
+	document.querySelector('[data-clear]')?.addEventListener('click', () => {
+		if (!form || !window.confirm('¿Borrar todos los datos guardados en este navegador?')) return;
+		form.reset();
+		(form.elements.namedItem('invoiceDate') as HTMLInputElement).value = localDateValue();
+		try { localStorage.removeItem(storageKey); } catch { notify('No se pudieron borrar los datos.', 'error'); return; }
+		notify('Datos guardados borrados.', 'success');
+	});
+
+	document.querySelector('[data-confirm-send]')?.addEventListener('click', async () => {
+		if (!form) return;
+		const submit = document.querySelector<HTMLButtonElement>('[data-confirm-send]');
+		const label = document.querySelector<HTMLElement>('[data-confirm-label]');
+		const spinner = document.querySelector<HTMLElement>('[data-confirm-spinner]');
+		if (submit) submit.disabled = true;
+		if (label) label.textContent = 'Generando…';
+		if (spinner) spinner.hidden = false;
+		try {
+			const response = await fetch('/api/factura', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(Object.fromEntries(new FormData(form).entries())),
+			});
+			if (!response.ok) {
+				const result = (await response.json()) as { message?: string };
+				throw new Error(result.message ?? 'No se pudo generar la factura.');
+			}
+			const url = URL.createObjectURL(await response.blob());
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = response.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1] ?? 'FACTURA.xlsx';
+			link.click();
+			window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+			dialog?.close();
+			notify('La factura Excel se ha descargado.', 'success');
+		} catch (error) {
+			dialog?.close();
+			notify(error instanceof Error ? error.message : 'No se pudo enviar la factura.', 'error');
+		} finally {
+			if (submit) submit.disabled = false;
+			if (label) label.textContent = 'Descargar Excel';
+			if (spinner) spinner.hidden = true;
+		}
+	});
+
+	document.querySelector('[data-logout]')?.addEventListener('click', async () => {
+		await fetch('/api/logout', { method: 'POST' });
+		window.location.assign('/login');
+	});
+</script>
