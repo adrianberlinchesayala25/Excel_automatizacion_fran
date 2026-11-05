@@ -1,7 +1,5 @@
-import { createRequire } from 'node:module';
 import JSZip from 'jszip';
-
-const XlsxPopulate = createRequire(import.meta.url)('xlsx-populate');
+import XlsxPopulate from 'xlsx-populate';
 
 export interface InvoiceWorkbookData {
 	invoiceNumber: string;
